@@ -66,24 +66,46 @@ async function run() {
       const updatedCoffee = req.body;
       const updateDoc = {
             // updated coffee dilam karon full object kei change korbo
-              // othoba name:updatedCoffee.name / price:updatedCoffee.price eveabeo specific value change kora jay
+              // othoba {name:updatedCoffee.name / price:updatedCoffee.price} eveabeo specific value change kora jay
       $set: updatedCoffee,
       };
       const result = await coffeeCollection.updateOne(filter, updateDoc, options);
       res.send(result);
     })
               //user related API
-            //get the data (ete data gulo 3000/users server e dekhabe)
+              //get the data (ete data gulo 3000/users server e dekhabe)
     app.get("/users", async(req,res)=>{
       const result = await usersCollection.find().toArray();
       res.send(result)
     })
               //post the data
     app.post('/users', async(req,res)=>{
-        const userProfile = req.body;
-        console.log(userProfile);
-        const result = await usersCollection.insertOne(userProfile);
-        res.send(result);
+      const userProfile = req.body;
+      console.log(userProfile);
+      const result = await usersCollection.insertOne(userProfile);
+      res.send(result);
+    })
+              //delete the data
+    app.delete("/users/:id", async(req,res)=>{
+      const id = req.params.id;
+      const query = {_id:new ObjectId(id)};
+      const result = await usersCollection.deleteOne(query);
+      res.send(result);
+    })
+            //update the data using PATCH
+    app.patch('/users', async(req,res)=>{
+      // console.log("update the signInINfo:",req.body)
+      const signInInfo = req.body;
+      const {email, lastSignInTime} = signInInfo;
+      const filter = {email: email};
+      const updateDoc ={
+        $set:{
+              // 1st lastSignInTime ta hoilo mongodb er keyword: , 2nd lastSignInTime ta hoilo upore je destructure kore updated sigintime paichi seta
+          lastSignInTime: lastSignInTime
+        }
+      }
+      const result = await usersCollection.updateOne(filter, updateDoc);
+      res.send(result)
     })
         // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
